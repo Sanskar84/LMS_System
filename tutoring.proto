@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+
+// Tutoring Service to generate answers
+service Tutoring {
+  rpc getLLMAnswerResponse (LLMRequest) returns (LLMResponse);
+}
+
+message LLMRequest {
+  string query = 1;
+}
+
+message LLMResponse {
+  string answer = 1;
+}

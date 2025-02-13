@@ -1,0 +1,216 @@
+syntax = "proto3";
+
+service LMS {
+  // Login and logout are shared between students and instructors
+   rpc Login (LoginRequest) returns (LoginResponse);
+   rpc Logout (LogoutRequest) returns (StatusResponse);
+
+
+   rpc PostQuery (PostQueryRequest) returns (PostQueryReply);
+   rpc GetQueries (GetQueriesRequest) returns (GetQueriesReply);
+   rpc RespondToQuery (RespondToQueryRequest) returns (RespondToQueryReply);
+
+
+   rpc PostCourseMaterial(PostMaterialRequest) returns (PostMaterialResponse);
+   rpc GetCourseMaterials (GetCourseMaterialsRequest) returns (GetCourseMaterialsReply);
+
+   rpc PostAssignment (PostAssignmentRequest) returns (PostAssignmentReply);
+   rpc GetAssignments (GetAssignmentsRequest) returns (GetAssignmentsReply);
+   rpc SubmitAssignment (SubmitAssignmentRequest) returns (SubmitAssignmentReply);
+   rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply);
+   rpc GradeSubmission (GradeSubmissionRequest) returns (GradeSubmissionReply);
+   rpc ViewGrades (ViewGradesRequest) returns (ViewGradesReply);
+
+   rpc CheckLeader(LeaderRequest) returns (LeaderResponse);
+   
+   rpc RequestVote(RequestVoteRequest) returns (RequestVoteResponse);
+   rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesResponse);
+   rpc AnnounceLeader(LeaderAnnouncement) returns (Empty);
+
+   
+
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  bool success = 2;
+  string role = 3;
+}
+
+message LogoutRequest{
+  string token = 1;
+}
+
+message StatusResponse {
+  bool success = 1;
+}
+message PostQueryRequest{
+  string student_id = 1;
+  string query_text = 2;
+  string llm_answer = 3;
+}
+message PostQueryReply{
+  bool success = 1;
+  int32 query_id=2;
+}
+message GetQueriesRequest{
+  string user_id = 1;  
+}
+message Query{
+  int32 query_id = 1;
+  string query_text = 2;
+  string response = 3; // Instructor response (if any)
+}
+message GetQueriesReply {
+  repeated Query queries = 1;
+}
+
+message RespondToQueryRequest {
+    int32 query_id = 1;
+    string response_text = 2;
+}
+
+message RespondToQueryReply {
+    bool success = 1;
+}
+
+message PostMaterialRequest{
+   string material_title = 1;
+   string material_content = 2;
+}
+message PostMaterialResponse{
+   bool success = 1;
+   int32 material_id=2;
+}
+
+message CourseMaterial {
+    int32 material_id = 1;
+    string material_title = 2;
+    string material_content = 3;
+}
+message GetCourseMaterialsRequest {
+
+}
+message GetCourseMaterialsReply {
+    repeated CourseMaterial materials = 1;
+}
+
+// Request and reply for posting an assignment
+message PostAssignmentRequest {
+    string assignment_title = 1;
+    string assignment_description = 2;
+}
+
+message PostAssignmentReply {
+    bool success = 1;
+    int32 assignment_id = 2;
+}
+// Request and reply for getting all assignments
+message GetAssignmentsRequest {
+}
+
+message Assignment {
+    int32 assignment_id = 1;
+    string assignment_title = 2;
+    string assignment_description = 3;
+}
+
+message GetAssignmentsReply {
+    repeated Assignment assignments = 1;
+}
+
+// Request and reply for submitting an assignment
+message SubmitAssignmentRequest {
+    int32 assignment_id = 1;
+    string student_id = 2;
+    string submission_content = 3;
+}
+
+message SubmitAssignmentReply {
+    bool success = 1;
+}
+message GetSubmissionsRequest {
+
+}
+message Submission {
+    int32 assignment_id=1;
+    string student_id=2;
+    string submission_content = 3;
+}
+message GetSubmissionsReply {
+   repeated Submission submissions=1;
+}
+message GradeSubmissionRequest{
+   int32 assignment_id = 1;
+   string student_id = 2;
+   string grade = 3;
+   string feedback = 4;
+	
+}
+message GradeSubmissionReply {
+   bool success = 1;
+}
+
+message ViewGradesRequest {
+   string student_id = 1;
+}
+message Grade {
+   int32 assignment_id = 1;
+   string student_id = 2;
+   string grade = 3;
+   string feedback = 4;
+}
+message ViewGradesReply {
+  
+  repeated Grade grades = 1;    
+}
+
+
+message RequestVoteRequest {
+  int32 term = 1;
+  int32 candidateId = 2;
+  int32 lastLogIndex = 3;
+  int32 lastLogTerm = 4;
+}
+
+message RequestVoteResponse {
+  int32 term = 1;
+  bool voteGranted = 2;
+}
+
+message AppendEntriesRequest {
+  int32 term = 1;
+  int32 leaderId = 2;
+  int32 prevLogIndex = 3;
+  int32 prevLogTerm = 4;
+  repeated LogEntry entries = 5;
+  int32 leaderCommit = 6;
+}
+
+message AppendEntriesResponse {
+  int32 term = 1;
+  bool success = 2;
+}
+
+message LeaderAnnouncement {
+  string leaderId = 1;
+}
+
+message LogEntry {
+    int32 term = 1;
+    Grade grade_entry = 2;
+}
+message Empty {}
+
+
+message LeaderRequest {}
+
+message LeaderResponse {
+    bool is_leader = 1;
+}
+
